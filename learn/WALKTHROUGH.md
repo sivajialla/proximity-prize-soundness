@@ -90,3 +90,27 @@ and the (long-shot) angles of attack are in [`../ATTACK-PLAN.md`](../ATTACK-PLAN
 - **Do not** edit `Solution.lean` / `score.txt` / `radius.txt` unless a real,
   checked improvement exists — a broken change just makes the current record stop
   verifying.
+
+## 7. Running without slowing down a 16 GB Mac
+
+The full check (`benchmark.sh`) is a memory bomb on a 16 GB machine — it can push
+the Mac into heavy swap and make everything crawl (temporary, not damaging, but
+annoying). Best practices:
+
+1. **Don't run the full check locally.** The competition re-verifies every
+   submission on its own Linux servers, so let `yukon submit` do the heavy work.
+2. **For local checks, build only the file you changed, gently:**
+   ```sh
+   learn/safe-build.sh ProximityPrize.SubmissionLower.Solution
+   ```
+   This caps threads and lowers CPU priority so your Mac stays usable. It builds
+   one target in seconds–minutes, not the whole 3,900-module closure.
+3. **Never re-run `yukon setup`** — it's already done (the 8.6 GB `.lake` cache).
+4. If you ever *must* run the full local check, always cap it:
+   ```sh
+   LEAN_NUM_THREADS=1 BENCHMARK_INSECURE_LOCAL=1 ./benchmark.sh lower
+   ```
+   Expect it to be slow (an hour+). `LEAN_NUM_THREADS=1` is the setting whose
+   absence caused the earlier slowdown.
+5. **For serious work, use a Linux machine with 32 GB+ RAM** (cloud VM /
+   Codespaces) — a 16 GB Mac is under-spec'd for full Lean+ArkLib builds.

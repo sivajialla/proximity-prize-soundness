@@ -22,22 +22,32 @@ n = 262144                            # domain size 2^18 = number of check point
 reps = 128                            # spot-check repetitions
 min_rel = Fraction(131073, 262144)    # legal upper bound on the radius
 gs_radius = 1 - math.sqrt(0.5)        # the Guruswami-Sudan wall (= score 64.00)
+record = 6399                         # current promoted frontier (centibits)
 
 def analyze(P, Q):
     d = Fraction(P, Q); df = float(d)
     bits = -reps * math.log2(1 - df)
     B = math.floor(bits * 100)
     errs = math.floor(df * n)
+    legal = 0 < d < min_rel
     print(f"  radius delta   = {P}/{Q} = {df:.10f}")
     print(f"  SCORE          = 2^-{bits:.4f}  ->  B = {B}  (= {B/100:.2f} bits)")
-    print(f"  in legal range = {'yes' if 0 < d < min_rel else 'NO'}  (need 0 < delta < {float(min_rel):.5f})")
+    print(f"  in legal range = {'yes' if legal else 'NO'}  (need 0 < delta < {float(min_rel):.5f})")
     print(f"  errors allowed = {errs}   (of {n} points)")
-    if df < gs_radius:
-        print(f"  vs the wall    = BELOW {gs_radius:.8f}  ->  reduction provable in principle;")
-        print(f"                   the hard part is writing the Lean proof at this radius.")
+    print(f"  vs the wall    = {'BELOW' if df < gs_radius else 'AT/ABOVE'} {gs_radius:.8f}")
+    # Verdict: is this a viable improvement candidate?  (NOT the real referee —
+    # even a PASS still requires you to WRITE the Lean proof and `yukon submit`.)
+    if not legal:
+        verdict = "FAIL - radius is outside the legal range"
+    elif B == record:
+        verdict = f"FAIL - ties the record ({record}); ties are rejected"
+    elif B < record:
+        verdict = f"FAIL - scores {B}, below the record {record}"
+    elif df >= gs_radius:
+        verdict = f"FAIL - scores {B} but is beyond the wall (needs unproven math)"
     else:
-        print(f"  vs the wall    = AT/ABOVE {gs_radius:.8f}  ->  needs list-decoding beyond")
-        print(f"                   what anyone can currently prove: an OPEN problem.")
+        verdict = f"PASS (in principle) - beats the record and is below the wall"
+    print(f"  >> VERDICT     = {verdict}")
 
 if __name__ == "__main__":
     if len(sys.argv) == 2 and "/" in sys.argv[1]:

@@ -113,18 +113,26 @@ Direct `sorry` scan (occurrences / files):
 | `ProximityGap/BCIKS20` | 108 | 17 (6 files) | partially sorry |
 | `ListDecodability` | 179 | 6 (5 files) | mostly proven |
 
-## Next check (authoritative, one targeted build)
+## Axiom check — DONE (confirmed clean ✅)
 
-Before committing to the folded-RS route, confirm it is truly axiom-clean:
+Ran `#print axioms` (see `learn/AxiomCheck.lean`) after building the folded-RS
+module (`lake build …CapacityBounds.Frs`, 53s, negligible memory):
 
-```sh
-# add `#print axioms frs_mcaError_le` to a scratch file importing it, then:
-learn/safe-build.sh <that scratch module>
+```
+'CodingTheory.frs_mcaError_le'         depends on axioms: [propext, Classical.choice, Quot.sound]
+'ProximityGap.mcaError_interleaved_le' depends on axioms: [propext, Classical.choice, Quot.sound]
 ```
 
-A result of exactly `propext, Classical.choice, Quot.sound` (no `sorryAx`) means
-`frs_mcaError_le` is legally usable in a submission. If `sorryAx` appears, it is
-transitively tainted and off-limits.
+Both are **transitively axiom-clean** — exactly the three allowed axioms, no
+`sorryAx`. So both the folded-RS capacity bound and the interleaved→base bridge are
+**legally usable in a submission**. The folded-RS route is not blocked at the tooling
+level; the remaining obstacle is purely the mathematical reduction (interleaved/base
+→ folded affine-line MCA), plus ruling out the `LargeAlphabet/Barrier.lean`
+impossibility.
+
+Note: the Frs olean is *not* built by the default `ProximityPrize` target (it's
+outside that import closure), so `lake build …CapacityBounds.Frs` is needed once
+before any file importing it will elaborate.
 
 ## Bottom line
 

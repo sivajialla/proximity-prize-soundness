@@ -134,6 +134,26 @@ Note: the Frs olean is *not* built by the default `ProximityPrize` target (it's
 outside that import closure), so `lake build …CapacityBounds.Frs` is needed once
 before any file importing it will elaborate.
 
+## Barrier check — DONE (route NOT doomed ✅)
+
+Read the two proven impossibility-flavored results:
+
+- **`large_alphabet_lambda_lower` / `robust_minimum_distance_barrier`**
+  (`ListDecodability/Bounds/LargeAlphabet.lean`, [ABF26]/[AGL23]/[BDG24]): list-decoding
+  *near capacity* `ℓ/(ℓ+1)·(1−ρ−η)` **forces** `|F| ≥ 2^(α/η)`. This is a *large-alphabet
+  requirement*, not an impossibility for us: our `|F| = p⁶ ≈ 9.4×10⁵⁵ ≈ 2¹⁸⁵` is exactly the
+  huge alphabet the theorem says you need. It is *consistent with* folded RS beating the wall.
+  (It does cap how far even folded RS can go: η ≳ α/185, so radii approaching capacity 0.5 are
+  eventually blocked — but that ceiling is far above 64 bits, so it does not affect our goal.)
+- **`linear_mcaError_ge_information_set`** (proven, `ProximityGap/InformationSetLowerBound.lean`):
+  `mcaError(AffineLineGenerator, C, δ) ≥ ⌊δ·|ι|⌋/|F|` for `δ < minDist/|ι|`. At δ≈0.293 that is
+  `≥ 76780/|F|` — about 3.5×10¹² **below** the budget ceiling `2.75×10¹⁷/|F|`. No obstruction.
+
+**Verdict: no proven ArkLib impossibility blocks the folded-RS route.** Caveat: absence of a
+proven barrier ≠ the reduction is true. `mcaError(plain base RS, δ) ≤ mcaError(folded RS, δ)`
+could still be false mathematically — ArkLib simply contains no theorem settling it either way.
+That remains the open crux.
+
 ## Bottom line
 
 - Two "easy" mcaError shortcuts are `sorry`-backed — unusable.
